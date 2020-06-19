@@ -84,9 +84,21 @@
                 bottom:35px;
                 width:196px;
             }
+            #evaluer{
+                position:absolute;
+                left:400px;
+                top:300px;
+                display:none;
+                z-index: 1;
+                width:300px;
+                height:100px;
+                background-color: gray;
+            }
         </style>
     </head>
     <body>
+        <div id="evaluer"><button id="M">Maitrisé</button><button id="EP">En Partie</button><button id="PT">Pas du Tout</button></div>
+        <span id="stat"></span><br>
         <input type="number" id="nbcartes" placeholder="limiter à 36" title="test"><button id="selectionAlea">Sélection Aléatoire</button>
         <select id="type"></select><select id="univers"></select><input type="text" id="search"><button id="rechercher">Rechercher les cartes avec ce terme</button>
         <div id="affichage" class="aff"></div>
@@ -102,6 +114,11 @@
             let ligne;
             let decalligne=0;
             let alea=1;
+            let maitrise=0;
+            let enPartie=0;
+            let pasDuTout=0;
+            let pourcent=0;
+            $("#stat").text("Maitrisé : "+maitrise+", En Partie : "+enPartie+", Pas du Tout : "+pasDuTout+", soit "+pourcent+"%");
         </script>
         <script src="listeAssociation.js"></script>
         <script>    
@@ -171,6 +188,24 @@
                 let type=$("#type").val();
                 alea=2;
                 NvDonneAlea();
+            })
+            $("#M").on("click",function(){
+                maitrise++;
+                pourcent=Math.floor((maitrise+enPartie/2)*100/(maitrise+enPartie+pasDuTout));
+                $("#stat").text("Maitrisé : "+maitrise+", En Partie : "+enPartie+", Pas du Tout : "+pasDuTout+", soit "+pourcent+"%");
+                $("#evaluer").css("display","none");
+            })
+            $("#EP").on("click",function(){
+                enPartie++;
+                pourcent=Math.floor((maitrise+enPartie/2)*100/(maitrise+enPartie+pasDuTout));
+                $("#stat").text("Maitrisé : "+maitrise+", En Partie : "+enPartie+", Pas du Tout : "+pasDuTout+", soit "+pourcent+"%");
+                $("#evaluer").css("display","none");
+            })
+            $("#PT").on("click",function(){
+                pasDuTout++;
+                pourcent=Math.floor((maitrise+enPartie/2)*100/(maitrise+enPartie+pasDuTout));
+                $("#stat").text("Maitrisé : "+maitrise+", En Partie : "+enPartie+", Pas du Tout : "+pasDuTout+", soit "+pourcent+"%");
+                $("#evaluer").css("display","none");
             })
             function affichageType(univ,type){
                 let liste=listeAsso();
@@ -274,13 +309,18 @@
                 univ.text(affichageU[i]);
                 brique.on("click",function(){
                     if(text.text()==affichageR[i]){
-                    text.text(affichageV[i]);
+                    text.html(affichageV[i]+"<br><button id='evaluer"+i+"' >Evaluer</button>");
                     $(".type").eq(i).css("display","none");
                     $(".univers").eq(i).css("display","none");
+                    $(".pi").eq(i).css("display","none");
+                    $("#evaluer"+i).on("click",function(){
+                        $("#evaluer").css("display","block");
+                    })
                     }else{
                         text.text(affichageR[i]);
                         $(".type").eq(i).css("display","block");
                         $(".univers").eq(i).css("display","block");
+                        $(".pi").eq(i).css("display","block");
                     }
                 });
                 let pi=$("<div></div>");
@@ -344,10 +384,13 @@
                 pi.attr("class","pi");
                 brique.on("click",function(){
                     if(text.text()==affichageR[i]){
-                    text.text(affichageV[i]);
+                    text.html(affichageV[i]+"<br><button id='evaluer"+i+"' >Evaluer</button>");
                     $(".type").eq(i).css("display","none");
                     $(".univers").eq(i).css("display","none");
                     $(".pi").eq(i).css("display","none");
+                    $("#evaluer"+i).on("click",function(){
+                        $("#evaluer").css("display","block");
+                    })
                     }else{
                         text.text(affichageR[i]);
                         $(".type").eq(i).css("display","block");
@@ -387,6 +430,7 @@
                 }
             }
         }
+        
         }
             function nbColLig(nbduo){
                 decalligne=0;
