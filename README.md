@@ -1,1 +1,1 @@
-# Carte_Revision
+# Carte_Revision : Permet de réviser sur n'importe quel sujet, il suffit de créer les cartes. Il y a plusieurs méthodes pour les créer; soit les mettre directement dans un tableau à cinq colonnes ("Question","Réponse","Indice","Type1","Type2"), soit vous créer une base de données (mysql par exemple) ou un xml avec du java(à venir) ou un autre langage pour aller récupérer les données.  
