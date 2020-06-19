@@ -1,0 +1,340 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Flashcards Révision</title>
+        <meta charset="utf-8">
+        <style>
+            .carre{
+                display:flex;
+                width: 200px;
+                height: 200px;
+                flex-direction: column;
+                justify-content: center;
+                border:solid;
+                position:relative;
+            }
+            .milieu{
+                display:inline-block;
+                vertical-align: middle;
+                width:196px;
+                text-align: center;
+                border:solid;
+                border-color: red;
+            }
+            .aff{
+                display: flex;
+                justify-content: center;
+            }
+            .disp{
+                display:flex;
+                justify-content: center;
+            }
+            img{
+                width:180px;
+            }
+            .pi{
+                position:absolute;
+                background-color: darkred;
+                color:white;
+                border:3px dotted black;
+                width:15px;
+                height:15px;
+                border-radius: 50%;
+                top:2px;
+                right:2px;
+                text-align: center;
+            }
+            .indice{
+                position:absolute;
+                background-color: gainsboro;
+                border-radius:10%;
+                width:190px;
+                max-height: 160px;
+                display: none;
+                left:5px;
+                top:25px;
+                text-align: center;
+            }
+            .fleche{
+                position:absolute;
+                width:0;
+                height:0;
+                border-right:5px solid transparent;
+                border-left:5px solid transparent;
+                border-bottom:5px solid black;
+                top:20px;
+                right:12px;
+                display:none;
+            }
+            .type{
+                position:absolute;
+                text-align: center;
+                border:solid;
+                border-color: blue;
+                left:0;
+                bottom:5px;
+                width:196px;
+            }
+            .univers{
+                position:absolute;
+                text-align: center;
+                border:solid;
+                border-color:green;
+                left:0;
+                bottom:35px;
+                width:196px;
+            }
+        </style>
+    </head>
+    <body>
+        <input type="number" id="nbcartes" placeholder="limiter à 36" title="test"><button id="selectionAlea">Sélection Aléatoire</button>
+        <input type="text" id="search"><button id="rechercher">Rechercher les cartes avec ce terme</button>
+        <div id="affichage" class="aff"></div>
+        <div id="affichage2" class="aff"></div>
+        <div id="affichage3" class="aff"></div>
+        <div id="affichage4" class="aff"></div>
+        <div id="affichage5" class="aff"></div>
+        <div id="affichage6" class="aff"></div>
+        <script src="jquery-3.3.1.js"></script>
+        <script>
+            let nbduo;
+            let col;
+            let ligne;
+            let decalligne=0;
+            let alea=1;
+        </script>
+        <script src="listeAssociation.js"></script>
+        <script>    
+            /*$.get("http://localhost:8080/Projet/ListeAsso",function(data){
+                liste=data;
+            })*/
+            $("#selectionAlea").on("click",function(){
+                alea=1;
+                NvDonneAlea();
+            })
+            $("#rechercher").on("click",function(){
+                
+                alea=0;
+                NvDonneAlea();
+            })
+
+            function listeSearch(mot){
+                
+                let liste=listeAsso();
+                for(let i=liste.length-1;i>=0;i--){
+                    if(liste[i][0].indexOf(mot)==-1 && liste[i][1].indexOf(mot)==-1){
+                        
+                        liste.splice(i,1);
+                    }
+                }
+                
+                return liste;
+            }
+
+            function NvDonneAlea(){
+            
+            $("#affichage").empty();
+            $("#affichage2").empty();
+            $("#affichage3").empty();
+            $("#affichage4").empty();
+            $("#affichage5").empty();
+            $("#affichage6").empty();
+            
+            let asso=listeAsso();
+            if(alea==0){
+                asso=listeSearch($("#search").val());
+            }
+            if(alea==1){
+                nbduo=$("#nbcartes").val();
+            }else{
+                nbduo=asso.length;
+            }
+            let affichageR=new Array(nbduo);
+            let affichageV=new Array(nbduo);
+            let affichageI=new Array(nbduo);
+            let affichageU=new Array(nbduo);
+            let affichageT=new Array(nbduo);
+            
+            for(let i=0;i<nbduo;i++){
+                let rnd=Math.floor(Math.random()*(asso.length));
+                let duo=asso[rnd];
+                
+                asso.splice(rnd,1);
+                affichageR[i]=duo[0];
+                affichageV[i]=duo[1];
+                affichageI[i]=duo[2];
+                affichageU[i]=duo[3];
+                affichageT[i]=duo[4];
+
+            }
+            nbColLig(nbduo);
+            let limite;
+            if(nbduo<=18){
+                limite=nbduo;
+            }else{
+                limite=18;
+            }
+            let aff=$("#affichage");
+            for(let i=0;i<limite;i++){
+                let brique=$("<div></div>");
+                brique.attr("class","carre");
+                let text=$("<span></span>");
+                text.attr("class","milieu");
+                brique.css("background-color","gray");
+                text.text(affichageR[i]);
+                
+                brique.append(text);
+                aff.append(brique);
+                let type=$("<div></div>");
+                type.attr("class","type");
+                type.text(affichageT[i]);
+                let univ=$("<div></div>");
+                univ.attr("class","univers");
+                univ.text(affichageU[i]);
+                brique.on("click",function(){
+                    if(text.text()==affichageR[i]){
+                    text.text(affichageV[i]);
+                    $(".type").eq(i).css("display","none");
+                    $(".univers").eq(i).css("display","none");
+                    }else{
+                        text.text(affichageR[i]);
+                        $(".type").eq(i).css("display","block");
+                        $(".univers").eq(i).css("display","block");
+                    }
+                });
+                let pi=$("<div></div>");
+                pi.text("?");
+                pi.attr("class","pi");
+                let indice=$("<div></div>");
+                indice.text(affichageI[i]);
+                indice.attr("class","indice");
+                let fleche=$("<div></div>");
+                fleche.attr("class","fleche");
+                pi.on("mouseover",function(){
+                    indice.css("display","block");
+                    fleche.css("display","block");
+                })
+                pi.on("mouseout",function(){
+                    indice.css("display","none");
+                    fleche.css("display","none");
+                })
+                if(affichageU[i]!=undefined){
+                    brique.append(univ);
+                }
+                if(affichageT[i]!=undefined){
+                brique.append(type);
+                }
+                brique.append(pi);
+                brique.append(indice);
+                brique.append(fleche);
+                if(i==col-1+decalligne){
+                    aff=$("#affichage2");
+                }
+                if(i==2*col-1+decalligne){
+                    aff=$("#affichage3");
+                }
+                
+                
+                
+            }
+            aff=$("#affichage4");
+            if(nbduo>18 && nbduo<=36){
+                let supp=nbduo-18;
+                nbColLig(supp);
+            for(let i=18;i<nbduo;i++){
+                
+                let brique=$("<div></div>");
+                brique.attr("class","carre");
+                let text=$("<span></span>");
+                text.attr("class","milieu");
+                brique.css("background-color","gray");
+                text.text(affichageR[i]);
+                
+                brique.append(text);
+                aff.append(brique);
+                let type=$("<div></div>");
+                type.attr("class","type");
+                type.text(affichageT[i]);
+                let univ=$("<div></div>");
+                univ.attr("class","univers");
+                univ.text(affichageU[i]);
+                brique.on("click",function(){
+                    if(text.text()==affichageR[i]){
+                    text.text(affichageV[i]);
+                    $(".type").eq(i).css("display","none");
+                    $(".univers").eq(i).css("display","none");
+                    }else{
+                        text.text(affichageR[i]);
+                        $(".type").eq(i).css("display","block");
+                        $(".univers").eq(i).css("display","block");
+                    }
+                });
+                let pi=$("<div></div>");
+                pi.text("?");
+                pi.attr("class","pi");
+                let indice=$("<div></div>");
+                indice.text(affichageI[i]);
+                indice.attr("class","indice");
+                let fleche=$("<div></div>");
+                fleche.attr("class","fleche");
+                pi.on("mouseover",function(){
+                    indice.css("display","block");
+                    fleche.css("display","block");
+                })
+                pi.on("mouseout",function(){
+                    indice.css("display","none");
+                    fleche.css("display","none");
+                })
+                if(affichageU[i]!=undefined){
+                brique.append(univ);
+                }
+                if(affichageT[i]!=undefined){
+                brique.append(type);
+                }
+                brique.append(pi);
+                brique.append(indice);
+                brique.append(fleche);
+                
+                if((i-18)==col-1+decalligne){
+                    aff=$("#affichage5");
+                }
+                if((i-18)==2*col-1+decalligne){
+                    aff=$("#affichage6");
+                }
+            }
+        }
+        }
+            function nbColLig(nbduo){
+                decalligne=0;
+                if(nbduo<=18){
+                    
+                    let nbcol=Math.floor(nbduo/3);
+                    
+                    let colep=nbduo%3;
+                    
+                    if(nbduo>=3){
+                        ligne=3;
+                        if(colep==0){
+                            col=nbcol;
+                        }else if(colep==5){
+                            col=nbcol+1;
+                        }else if(colep>=1 & colep<=4){
+                            col=nbcol;
+                            decalligne=1;
+                            
+                        }
+                    }else{
+                        ligne=nbduo-18;
+                        col=1;
+                    }
+                }else{
+                    col=6;
+                    ligne=3;
+                }
+                
+            }
+            
+        </script>
+        
+    </body>
+</html>
