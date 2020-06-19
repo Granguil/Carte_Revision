@@ -88,7 +88,7 @@
     </head>
     <body>
         <input type="number" id="nbcartes" placeholder="limiter à 36" title="test"><button id="selectionAlea">Sélection Aléatoire</button>
-        <input type="text" id="search"><button id="rechercher">Rechercher les cartes avec ce terme</button>
+        <select id="type"></select><select id="univers"></select><input type="text" id="search"><button id="rechercher">Rechercher les cartes avec ce terme</button>
         <div id="affichage" class="aff"></div>
         <div id="affichage2" class="aff"></div>
         <div id="affichage3" class="aff"></div>
@@ -108,6 +108,48 @@
             /*$.get("http://localhost:8080/Projet/ListeAsso",function(data){
                 liste=data;
             })*/
+            let liste=listeAsso();
+            let types=new Array();
+            let univers=new Array();
+            for(let i=0;i<liste.length;i++){
+                if(liste[i][4]!=undefined){
+                types.push(liste[i][4]);
+                }
+                if(liste[i][3]!=undefined){
+                univers.push(liste[i][3]);
+                }
+                types=unique(types);
+                univers=unique(univers);
+            }
+            let opt=$("<option></option>");
+            opt.attr("value","Tous");
+            opt.text("Tous");
+            $("#type").append(opt);
+            for(let i=0;i<types.length;i++){
+                let opt=$("<option></option>");
+                opt.attr("value",types[i]);
+                opt.text(types[i]);
+                $("#type").append(opt);
+            }
+            
+            opt=$("<option></option>");
+            opt.attr("value","Tous");
+            opt.text("Tous");
+            $("#univers").append(opt);
+            for(let i=0;i<univers.length;i++){
+                let opt=$("<option></option>");
+                opt.attr("value",univers[i]);
+                opt.text(univers[i]);
+                $("#univers").append(opt);
+            }
+            
+            function unique(list) {
+                var result = [];
+                $.each(list, function(i, e) {
+                    if ($.inArray(e, result) == -1) result.push(e);
+                });
+                return result;
+            }
             $("#selectionAlea").on("click",function(){
                 alea=1;
                 NvDonneAlea();
@@ -117,7 +159,44 @@
                 alea=0;
                 NvDonneAlea();
             })
-
+            $("#type").on("change",function(){
+                let univ=$("#univers").val();
+                let type=$("#type").val();
+                affichageType(univ,type);
+                alea=2;
+                NvDonneAlea();
+            })
+            $("#univers").on("change",function(){
+                let univ=$("#univers").val();
+                let type=$("#type").val();
+                alea=2;
+                NvDonneAlea();
+            })
+            function affichageType(univ,type){
+                let liste=listeAsso();
+                if(univ=="Tous"){
+                    for(let i=liste.length-1;i>=0;i--){
+                        if(liste[i][4]!=type){
+                            liste.splice(i,1);
+                        }
+                    }
+                }
+                if(type=="Tous"){
+                    for(let i=liste.length-1;i>=0;i--){
+                        if(liste[i][3]!=univ){
+                            liste.splice(i,1);
+                        }
+                    }
+                }
+                if(type!="Tous" && univ!="Tous"){
+                    for(let i=liste.length-1;i>=0;i--){
+                        if(liste[i][3]!=univ || liste[i][4]!=type){
+                            liste.splice(i,1);
+                        }
+                    }
+                }
+                return liste;
+            }
             function listeSearch(mot){
                 
                 let liste=listeAsso();
@@ -143,8 +222,10 @@
             let asso=listeAsso();
             if(alea==0){
                 asso=listeSearch($("#search").val());
+            }else if(alea==2){
+                asso=affichageType($("#univers").val(),$("#type").val());
             }
-            if(alea==1){
+            if(alea==1 || (alea==2 && $("#nbcartes").val()<=asso.length)){
                 nbduo=$("#nbcartes").val();
             }else{
                 nbduo=asso.length;
@@ -258,20 +339,23 @@
                 let univ=$("<div></div>");
                 univ.attr("class","univers");
                 univ.text(affichageU[i]);
+                let pi=$("<div></div>");
+                pi.text("?");
+                pi.attr("class","pi");
                 brique.on("click",function(){
                     if(text.text()==affichageR[i]){
                     text.text(affichageV[i]);
                     $(".type").eq(i).css("display","none");
                     $(".univers").eq(i).css("display","none");
+                    $(".pi").eq(i).css("display","none");
                     }else{
                         text.text(affichageR[i]);
                         $(".type").eq(i).css("display","block");
                         $(".univers").eq(i).css("display","block");
+                        $(".pi").eq(i).css("display","block");
                     }
                 });
-                let pi=$("<div></div>");
-                pi.text("?");
-                pi.attr("class","pi");
+                
                 let indice=$("<div></div>");
                 indice.text(affichageI[i]);
                 indice.attr("class","indice");
